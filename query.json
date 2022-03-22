@@ -1,0 +1,4 @@
+{
+    "task": "live_query",
+    "query": "CREATE SNAPSHOT dummy_snapshot WITH (seconds='5', tag='tail_snapshot') AS SELECT * FROM TAG:'dummy' LIMIT 5 ; "
+}
