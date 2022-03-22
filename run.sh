@@ -9,11 +9,16 @@ IMAGE=${IMAGE:-fluent-bit-dynamic-query}
 docker rm -f fluent-bit-tap
 docker run --name fluent-bit-tap --rm -it -p 2020:2020 -v "$SCRIPT_DIR"/fluent-bit:/fluent-bit/etc:ro -d "$IMAGE"
 
-sleep 10
+# Let us start up and fill the pipe up
+sleep 5
 
+# Add the query
 curl -H "Content-Type: application/json" http://localhost:2020/api/v1/stream_processor/task --data "@$SCRIPT_DIR/query.json"
-
 curl http://localhost:2020/api/v1/stream_processor/list| jq .
-curl http://localhost:2020/api/v1/stream_processor/flush/live_query| jq .
+
+# Run the query every 5s
+until ! curl http://localhost:2020/api/v1/stream_processor/flush/live_query| jq . ; do
+    sleep 5
+done
 
 # docker stop fluent-bit-tap
